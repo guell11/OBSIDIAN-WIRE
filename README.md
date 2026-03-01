@@ -1,3 +1,4 @@
+
 <div align="center">
 
 # ⬛ OBSIDIAN WIRE
@@ -36,6 +37,7 @@ estruturais, não de implementação:
 | Cookie de sessão roubável por XSS ou rede | `HttpOnly` + `SameSite=Strict` + Fingerprint de hardware |
 | Banco de dados legível se apreendido | DB contém apenas `IV` + `AES_Ciphertext` + `Kyber_Capsule` — entropia pura |
 
+---
 
 ## 🛡️ Arquitetura de Segurança
 
@@ -45,7 +47,8 @@ O protocolo de estabelecimento de chave abandona ECDH e RSA — ambos quebrávei
 **Algoritmo de Shor** em hardware quântico — e adota **CRYSTALS-Kyber512**, o algoritmo
 selecionado pelo NIST como padrão global de segurança pós-quântica (FIPS 204).
 
-Alice gera (pk_A, sk_A) → Compartilha pk_A offline com o grupo
+```
+Alice gera (pk_A, sk_A)  →  Compartilha pk_A offline com o grupo
 Bob roda: (capsule, sharedSecret) = Kyber.encap(pk_A)
 Bob cifra: ciphertext = AES-256-GCM(sharedSecret, mensagem)
 Bob envia ao servidor: { capsule, IV, ciphertext }
@@ -53,6 +56,7 @@ Bob envia ao servidor: { capsule, IV, ciphertext }
 Alice recebe o pacote
 Alice decapsula: sharedSecret = Kyber.decap(capsule, sk_A)
 Alice decifra: plaintext = AES-256-GCM-Decrypt(sharedSecret, ciphertext)
+```
 
 O servidor **nunca** tocou em `sharedSecret`. O servidor **nunca** viu `plaintext`.
 O banco de dados contém apenas `capsule + IV + ciphertext` — três pedaços de entropia.
@@ -69,10 +73,12 @@ com `OperationError` — impedindo injeção silenciosa de dados falsos.
 
 ### Camada 3 — Identidade Stateless Anti-Hijacking
 
-Login → Servidor emite JWT assinado com HMAC-SHA256
+```
+Login  →  Servidor emite JWT assinado com HMAC-SHA256
 JWT payload: { uuid, username, device_fingerprint, exp }
 
 device_fingerprint = SHA-256(User-Agent + IP)
+```
 
 - **Anti-Adulteração:** Se o cliente editar `uuid` no cookie para personificar outro
   usuário, a assinatura HMAC quebra e o servidor retorna HTTP 403.
@@ -92,35 +98,48 @@ SELECT * FROM blind_message LIMIT 3;
 author_uuid                          | iv             | ciphertext        | kyber_capsule
 a1b2c3d4-...                         | 3q2+7w==       | Gk49Lp8mN...      | hX9Pq2mK...
 f8e7d6c5-...                         | xK3nL9==       | Yw7Rt4sZ...       | qM2nX8pL...
-´´´ 
-Sem sk_A (que vive apenas na RAM do cliente e nunca é serializada),
+```
+
+Sem `sk_A` (que vive apenas na RAM do cliente e nunca é serializada),
 as três colunas são matematicamente inúteis.
 
-🎯 Threat Model
-O que o Obsidian Wire MITIGA:
-Vetor de Ataque	Status
-Roubo físico do servidor / banco de dados	✅ DB contém apenas entropia
-Harvest Now, Decrypt Later com computador quântico	✅ Kyber512 é MLWE-resistente ao Shor
-Interceptação de tráfego (MITM mesmo com TLS quebrado)	✅ Payload interno requer sk_A
-Session Hijacking por roubo de cookie	✅ Device Fingerprint + HttpOnly
-Adulteração de identidade (UUID spoofing)	✅ HMAC-SHA256 invalida token adulterado
-Injeção de mensagens falsas no banco	✅ GCM Authentication Tag rejeita dados alterados
-Insider threat (admin do servidor)	✅ Admin não tem chaves, só vê blobs
-XSS cookie theft	✅ HttpOnly bloqueia acesso JS
-O que o Obsidian Wire NÃO MITIGA (Camadas fora do escopo):
-Vetor	Motivo
-Malware / Keylogger no dispositivo do cliente	Se o OS está comprometido, a chave vaza antes de chegar ao motor
-Engenharia social	Matemática não protege contra humanos entregando a chave
-Câmera filmando a tela	Fora do escopo de criptografia de software
-Análise de tráfego de metadados avançada	Quem fala com quem e quando é parcialmente observável
-🚀 Como Rodar
-Requisitos
-Python 3.10+
+---
 
-pip
+## 🎯 Threat Model
 
-Instalação
-bash
+### O que o Obsidian Wire MITIGA:
+
+| Vetor de Ataque | Status |
+|---|---|
+| Roubo físico do servidor / banco de dados | ✅ DB contém apenas entropia |
+| Harvest Now, Decrypt Later com computador quântico | ✅ Kyber512 é MLWE-resistente ao Shor |
+| Interceptação de tráfego (MITM mesmo com TLS quebrado) | ✅ Payload interno requer sk_A |
+| Session Hijacking por roubo de cookie | ✅ Device Fingerprint + HttpOnly |
+| Adulteração de identidade (UUID spoofing) | ✅ HMAC-SHA256 invalida token adulterado |
+| Injeção de mensagens falsas no banco | ✅ GCM Authentication Tag rejeita dados alterados |
+| Insider threat (admin do servidor) | ✅ Admin não tem chaves, só vê blobs |
+| XSS cookie theft | ✅ HttpOnly bloqueia acesso JS |
+
+### O que o Obsidian Wire NÃO MITIGA (Camadas fora do escopo):
+
+| Vetor | Motivo |
+|---|---|
+| Malware / Keylogger no dispositivo do cliente | Se o OS está comprometido, a chave vaza antes de chegar ao motor |
+| Engenharia social | Matemática não protege contra humanos entregando a chave |
+| Câmera filmando a tela | Fora do escopo de criptografia de software |
+| Análise de tráfego de metadados avançada | Quem fala com quem e quando é parcialmente observável |
+
+---
+
+## 🚀 Como Rodar
+
+### Requisitos
+- Python 3.10+
+- pip
+
+### Instalação
+
+```bash
 # 1. Clone
 git clone https://github.com/seu-usuario/obsidian-wire.git
 cd obsidian-wire
@@ -133,10 +152,13 @@ export SECRET_KEY="$(python3 -c 'import secrets; print(secrets.token_hex(64))')"
 
 # 4. Inicie o servidor
 python app.py
-Acesse http://localhost:5000
+```
 
-Fluxo de uso
-text
+Acesse `http://localhost:5000`
+
+### Fluxo de uso
+
+```
 1. Registre dois usuários (Alice e Bob) em navegadores diferentes
 2. Alice abre o chat → sistema gera par de chaves Kyber na RAM
 3. Alice copia sua Chave Pública Kyber (exibida na interface)
@@ -144,8 +166,13 @@ text
 5. Alice cola a Chave Pública do Bob no campo "Destinatário" e ativa
 6. Bob cola a Chave Pública da Alice e ativa
 7. Agora as mensagens trafegam com KEM pós-quântico completo
-📁 Estrutura do Projeto
-text
+```
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
 obsidian-wire/
 ├── app.py              # Backend Flask (Auth + Vault API)
 ├── requirements.txt    # Dependências Python
@@ -154,10 +181,10 @@ obsidian-wire/
     ├── login.html      # Autenticação (CSS + JS embutidos)
     ├── register.html   # Registro (CSS + JS embutidos)
     └── chat.html       # Vault / Chat (Motor Kyber + UI embutidos)
+```
 
 <div align="center">
-Built with paranoia. Secured with mathematics.
 
-"In math we trust — in humans, we encrypt anyway."
+*"In math we trust — in humans, we encrypt anyway."*
 
-</div> 
+</div>
