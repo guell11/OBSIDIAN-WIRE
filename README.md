@@ -92,6 +92,7 @@ SELECT * FROM blind_message LIMIT 3;
 author_uuid                          | iv             | ciphertext        | kyber_capsule
 a1b2c3d4-...                         | 3q2+7w==       | Gk49Lp8mN...      | hX9Pq2mK...
 f8e7d6c5-...                         | xK3nL9==       | Yw7Rt4sZ...       | qM2nX8pL...
+´´´ 
 Sem sk_A (que vive apenas na RAM do cliente e nunca é serializada),
 as três colunas são matematicamente inúteis.
 
