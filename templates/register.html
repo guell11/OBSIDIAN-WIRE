@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Criar identidade · Obsidian Wire{% endblock %}
+{% block body %}
+<main class="auth-screen">
+  <section class="auth-brand" aria-label="Obsidian Wire">
+    <div class="brand-mark">OW</div>
+    <p class="eyebrow">K-PROTOCOL · POST-QUANTUM VAULT</p>
+    <h1>OBSIDIAN WIRE</h1>
+    <p class="brand-quote">In math we trust. In humans, we encrypt anyway.</p>
+  </section>
+
+  <section class="auth-panel" aria-label="Criar identidade">
+    <div class="panel-heading">
+      <p class="eyebrow">Nova identidade</p>
+      <h2>Criar conta</h2>
+    </div>
+    {% if error %}
+      <p class="form-error" role="alert">{{ error }}</p>
+    {% endif %}
+    <form method="post" class="auth-form">
+      <label>
+        <span>Nome</span>
+        <input name="username" type="text" autocomplete="username" minlength="3" maxlength="28" required autofocus>
+      </label>
+      <label>
+        <span>Senha</span>
+        <input name="password" type="password" autocomplete="new-password" minlength="10" required>
+      </label>
+      <label class="check-row">
+        <input name="remember" type="checkbox" checked>
+        <span>Manter este dispositivo conectado</span>
+      </label>
+      <button class="primary-button" type="submit">Gerar acesso</button>
+    </form>
+    <p class="switch-auth">Ja tem identidade? <a href="{{ url_for('login') }}">Entrar</a></p>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Entrar · Obsidian Wire{% endblock %}
+{% block body %}
+<main class="auth-screen">
+  <section class="auth-brand" aria-label="Obsidian Wire">
+    <div class="brand-mark">OW</div>
+    <p class="eyebrow">K-PROTOCOL · POST-QUANTUM VAULT</p>
+    <h1>OBSIDIAN WIRE</h1>
+    <p class="brand-quote">Se a criptografia nao sobrevive ao amanha, ela ja esta morta hoje.</p>
+  </section>
+
+  <section class="auth-panel" aria-label="Entrar">
+    <div class="panel-heading">
+      <p class="eyebrow">Sessao blindada</p>
+      <h2>Entrar</h2>
+    </div>
+    {% if error %}
+      <p class="form-error" role="alert">{{ error }}</p>
+    {% endif %}
+    <form method="post" class="auth-form">
+      <label>
+        <span>Nome</span>
+        <input name="username" type="text" autocomplete="username" required autofocus>
+      </label>
+      <label>
+        <span>Senha</span>
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="check-row">
+        <input name="remember" type="checkbox" checked>
+        <span>Manter este dispositivo conectado</span>
+      </label>
+      <button class="primary-button" type="submit">Entrar no cofre</button>
+    </form>
+    <p class="switch-auth">Novo por aqui? <a href="{{ url_for('register') }}">Criar identidade</a></p>
+  </section>
+</main>
+{% endblock %}

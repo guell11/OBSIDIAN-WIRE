@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Vault - Obsidian Wire{% endblock %}
+{% block body %}
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand-row">
+      <div class="brand-mark small">OW</div>
+      <div>
+        <p class="eyebrow">K-PROTOCOL</p>
+        <h1>Obsidian Wire</h1>
+      </div>
+    </div>
+    <div class="topbar-status">
+      <span id="cryptoStatus" class="status-pill pending">Inicializando</span>
+      <span id="accountName" class="account-name"></span>
+      <form method="post" action="{{ url_for('logout') }}">
+        <button class="ghost-button" type="submit">Sair</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="vault-grid">
+    <aside class="contacts-pane" aria-label="Contatos">
+      <div class="pane-heading">
+        <div>
+          <p class="eyebrow">Contatos</p>
+          <h2>Rede local</h2>
+        </div>
+        <button id="scanContactButton" class="icon-button" type="button" title="Escanear QR">QR</button>
+      </div>
+      <div class="identity-strip">
+        <span class="mini-label">Minha chave</span>
+        <strong id="myFingerprint">...</strong>
+      </div>
+      <div id="contactsList" class="contacts-list" role="list"></div>
+    </aside>
+
+    <section class="chat-pane" aria-label="Mensagens">
+      <div class="conversation-head">
+        <div>
+          <p class="eyebrow" id="conversationKicker">Nenhum contato ativo</p>
+          <h2 id="conversationTitle">Adicione alguem por QR</h2>
+        </div>
+        <span id="peerFingerprint" class="fingerprint-chip">sem peer</span>
+      </div>
+
+      <div id="messageLog" class="message-log" aria-live="polite"></div>
+
+      <form id="messageForm" class="composer">
+        <textarea id="messageInput" rows="2" maxlength="4000" placeholder="Mensagem blindada" disabled></textarea>
+        <button id="sendButton" class="primary-button compact" type="submit" disabled>Enviar</button>
+      </form>
+    </section>
+
+    <aside class="security-pane" aria-label="Identidade e QR">
+      <div class="pane-heading">
+        <div>
+          <p class="eyebrow">Handshake presencial</p>
+          <h2>Cartao QR</h2>
+        </div>
+        <button id="copyCardButton" class="ghost-button" type="button">Copiar</button>
+      </div>
+      <div class="qr-frame">
+        <canvas id="qrCanvas" width="640" height="640" aria-label="Meu QR de contato"></canvas>
+      </div>
+      <div class="key-metrics">
+        <div>
+          <span>Algoritmo</span>
+          <strong id="algorithmName">ML-KEM-768</strong>
+        </div>
+        <div>
+          <span>Payload</span>
+          <strong>AES-256-GCM</strong>
+        </div>
+      </div>
+      <label class="manual-import">
+        <span>Importar cartao</span>
+        <textarea id="manualContact" rows="4" placeholder="Cole o cartao Obsidian Wire"></textarea>
+      </label>
+      <button id="importContactButton" class="secondary-button" type="button">Adicionar contato</button>
+      <p id="systemNotice" class="system-notice" role="status"></p>
+    </aside>
+  </main>
+</div>
+
+<dialog id="scanDialog" class="scan-dialog">
+  <form method="dialog" class="dialog-head">
+    <div>
+      <p class="eyebrow">Scanner</p>
+      <h2>Adicionar contato</h2>
+    </div>
+    <button class="ghost-button" value="close">Fechar</button>
+  </form>
+  <video id="scanVideo" playsinline muted></video>
+  <p id="scanStatus" class="system-notice">Aguardando camera</p>
+</dialog>
+
+<script type="module" src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
